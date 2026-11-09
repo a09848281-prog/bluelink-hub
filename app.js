@@ -73,8 +73,11 @@
     const optionalServices = [...STANDARD_SERVICES];
     const custom = $('#customUuid').value.split(',').map(v => v.trim()).filter(Boolean);
     for (const uuid of custom) {
-      try { optionalServices.push(BluetoothUUID.getService(uuid)); }
-      catch (_) { showToast('UUIDの形式を確認してください: ' + uuid); return; }
+      try {
+        const normalized = /^(?:[0-9a-f]{4}|[0-9a-f]{8}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(uuid)
+          ? uuid.toLowerCase() : BluetoothUUID.getService(uuid);
+        optionalServices.push(normalized);
+      } catch (_) { showToast('UUIDの形式を確認してください: ' + uuid); return; }
     }
     try {
       const selected = await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:[...new Set(optionalServices)]});
