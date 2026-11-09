@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="Bluetooth Low Energy device explorer, monitor and control dashboard.">
+  <title>BlueLink Hub</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="BlueLink Hub home"><span class="brand-mark">B</span><span><strong>BlueLink</strong><small>HUB / BLE WORKSPACE</small></span></a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard"><span>◫</span> ダッシュボード</button>
+        <button class="nav-item" data-view="explorer"><span>⌘</span> デバイス探索</button>
+        <button class="nav-item" data-view="console"><span>⌁</span> 通信コンソール</button>
+        <button class="nav-item" data-view="logs"><span>▤</span> 履歴・ログ</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="side-label">CONNECTION</div>
+        <div class="side-status"><i id="sideDot"></i><span id="sideStatus">未接続</span></div>
+        <div class="side-note">Bluetooth Low Energy<br>ブラウザから直接接続</div>
+        <a class="github-link" href="https://github.com/a09848281-prog/bluelink-hub" target="_blank" rel="noreferrer">GitHub リポジトリ ↗</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">BLUETOOTH LOW ENERGY</div><h1 id="pageTitle">ダッシュボード</h1></div>
+        <div class="top-actions"><span class="secure-pill">● HTTPS / LOCAL</span><button id="headerConnect" class="button primary">＋ デバイスを接続</button></div>
+      </header>
+
+      <section class="view active" id="view-dashboard">
+        <div class="welcome-card">
+          <div class="welcome-copy"><span class="eyebrow light">DEVICE CONTROL CENTER</span><h2>近くのデバイスと、<br>つながろう。</h2><p>BLE機器を探索し、サービス・特性値を調べ、対応するデータを読み書きできます。</p><button class="button white" data-go="explorer">デバイスを探索する <b>→</b></button></div>
+          <div class="radar" aria-hidden="true"><div class="radar-ring r1"></div><div class="radar-ring r2"></div><div class="radar-ring r3"></div><div class="radar-sweep"></div><span class="radar-center">ᛒ</span><i class="radar-point p1"></i><i class="radar-point p2"></i><i class="radar-point p3"></i></div>
+        </div>
+        <div class="stat-grid">
+          <article class="stat-card"><span class="stat-icon blue">⌁</span><div class="stat-label">接続状態</div><strong id="statConnection">未接続</strong><small id="statDevice">デバイスを選択してください</small></article>
+          <article class="stat-card"><span class="stat-icon purple">▦</span><div class="stat-label">検出サービス</div><strong id="statServices">0</strong><small>現在の接続セッション</small></article>
+          <article class="stat-card"><span class="stat-icon green">↕</span><div class="stat-label">受信イベント</div><strong id="statEvents">0</strong><small>通知・読み取りの記録</small></article>
+        </div>
+        <div class="section-heading"><div><h3>クイックスタート</h3><p>初めて使う場合はこちら</p></div></div>
+        <div class="quick-grid">
+          <article class="quick-card"><span>01</span><h4>デバイスを選択</h4><p>接続ボタンから、ブラウザのBluetooth選択画面を開きます。</p></article>
+          <article class="quick-card"><span>02</span><h4>サービスを調べる</h4><p>接続後、機器が公開しているGATTサービスを一覧表示します。</p></article>
+          <article class="quick-card"><span>03</span><h4>データを確認・操作</h4><p>特性値の読み取り、通知の購読、対応する値の書き込みを行います。</p></article>
+        </div>
+        <div class="notice"><b>ⓘ 対応機器について</b><span>Bluetooth LEかつGATTを公開している機器が対象です。機器ごとに通信仕様が異なるため、すべての機器を操作できるわけではありません。</span></div>
+      </section>
+
+      <section class="view" id="view-explorer">
+        <div class="section-heading"><div><h3>デバイス探索</h3><p>接続する機器を選び、公開サービスを調査します。</p></div><button id="explorerConnect" class="button primary">⌕ Bluetooth機器を探す</button></div>
+        <div class="panel connect-panel">
+          <div class="panel-title"><span class="panel-icon">⌁</span><div><h3>接続設定</h3><p>接続前に、必要なら独自サービスUUIDを指定できます。</p></div></div>
+          <label class="field-label" for="customUuid">追加でアクセスするサービスUUID（任意）</label>
+          <div class="input-row"><input id="customUuid" type="text" placeholder="例: 12345678-1234-5678-1234-56789abcdef0"><span class="field-hint">標準サービスは自動で追加</span></div>
+          <div class="helper-text">独自UUIDを指定すると、そのサービスへのアクセス許可を接続時に要求します。複数指定する場合はカンマ区切りです。</div>
+          <div class="device-row"><div class="device-avatar">BT</div><div class="device-info"><strong id="deviceName">デバイス未接続</strong><small id="deviceId">探索を開始してください</small></div><span class="status-chip" id="connectionChip">OFFLINE</span><button id="disconnectBtn" class="button danger-outline" disabled>切断</button></div>
+        </div>
+        <div class="section-heading compact"><div><h3>GATTサービス</h3><p>接続したデバイスが公開するサービスと特性値</p></div><button id="refreshServices" class="button secondary" disabled>↻ 再取得</button></div>
+        <div id="servicesContainer" class="empty-panel"><div class="empty-symbol">⌘</div><strong>まだサービスがありません</strong><p>Bluetooth機器を接続すると、ここにサービス一覧が表示されます。</p></div>
+      </section>
+
+      <section class="view" id="view-console">
+        <div class="section-heading"><div><h3>通信コンソール</h3><p>読み取り・通知・書き込みの結果を確認します。</p></div><button id="clearConsole" class="button secondary">ログをクリア</button></div>
+        <div class="panel console-panel"><div class="console-head"><span><i class="live-dot"></i> LIVE STREAM</span><span id="consoleCount">0 EVENTS</span></div><div id="consoleOutput" class="console-output"><div class="console-empty">デバイスを接続して操作すると、通信イベントがここに表示されます。</div></div></div>
+        <div class="notice warning"><b>⚠ 書き込みについて</b><span>書き込み操作は接続先機器の動作を変える場合があります。機器の説明書で仕様を確認し、意味が分かる値だけ送信してください。</span></div>
+      </section>
+
+      <section class="view" id="view-logs">
+        <div class="section-heading"><div><h3>履歴・ログ</h3><p>このブラウザ内に保存した操作履歴です。</p></div><div class="button-group"><button id="exportLogs" class="button secondary">↓ CSV出力</button><button id="clearLogs" class="button danger-outline">削除</button></div></div>
+        <div class="panel logs-panel"><div class="table-wrap"><table><thead><tr><th>時刻</th><th>種類</th><th>デバイス</th><th>内容</th></tr></thead><tbody id="logsBody"><tr><td colspan="4" class="table-empty">まだ履歴はありません。</td></tr></tbody></table></div></div>
+        <p class="helper-text">ログはこの端末のブラウザ内（localStorage）に保存されます。別の端末とは同期されません。</p>
+      </section>
+
+      <footer><span>BlueLink Hub <b>v0.1.0</b></span><span>ブラウザの権限と機器の仕様に従って動作します。</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
