@@ -1,40 +1,31 @@
-# BlueLink Hub
+# SignalScope
 
-Bluetooth Low Energy (BLE) の探索・GATT解析・データ読み書きを行う、GitHub Pages向けのブラウザアプリです。
+信号機の色の切り替わりを観測し、地点ごとの継続時間・周期を分析するGitHub Pages向けWebアプリです。
 
-## 公開方法（GitHub Pages）
+## GitHub Pagesで公開
+1. リポジトリの **Settings → Pages** を開く
+2. Sourceを **Deploy from a branch** にする
+3. Branchを **main**、Folderを **/(root)** にしてSave
+4. デプロイ完了後、 https://a09848281-prog.github.io/bluelink-hub/ を開く
 
-1. リポジトリの **Settings** を開く
-2. 左メニューの **Pages** を開く
-3. **Build and deployment** の Source を **Deploy from a branch** にする
-4. Branch を **main**、Folder を **/ (root)** にして Save
-5. 数分後、 `https://a09848281-prog.github.io/bluelink-hub/` で公開
+## v0.2.0の機能
+- 赤・黄・青の切り替わりをボタンで時刻記録
+- 位置情報の任意取得（ボタン操作時のみ）
+- 地点名を付けて記録
+- 同じ地点の連続記録から色ごとの平均継続時間を算出
+- 同じ色に戻るまでの時間から参考周期を推定
+- 履歴の取り消し、CSV出力、全削除
+- データはブラウザのlocalStorageに保存
 
-## 使い方
-
-1. 対応するブラウザでHTTPSの公開URLを開く
-2. 「デバイスを接続」→ ブラウザのBluetooth選択画面で機器を選ぶ
-3. 接続後、公開されているGATTサービスとCharacteristicを確認
-4. 対応するCharacteristicで読み取り・通知購読・書き込みを実行
-
-独自サービスUUIDが必要な機器は、接続前に「追加でアクセスするサービスUUID」に入力してください。複数はカンマ区切りです。
-
-## 技術・制限事項
-
-- HTML / CSS / JavaScriptのみ。サーバー、GAS、DB、APIキーは不要です。
-- Web Bluetooth APIを使用します。HTTPSとユーザー操作、ブラウザの許可が必要です。
-- BLE機器がGATTサービスを公開している必要があります。すべてのBluetooth機器に対応するものではありません。
-- ブラウザは安全上、ユーザーが選択・許可したデバイスだけにアクセスできます。周囲の機器を無断で一括スキャンする機能ではありません。
-- iOS / iPadOS SafariはWeb Bluetoothに対応していないため、iPhone/iPadから直接BLE接続できません。ダッシュボードやログ表示は利用できます。
-- 遠隔地にあるBLE機器をインターネット越しに操作するには、対象機器の近くに常時稼働するネットワーク接続ゲートウェイが別途必要です。GitHub Pages単体では遠隔中継できません。
-- データはブラウザのlocalStorageに保存されます。端末間同期はありません。
+## 大切な制限
+- 現段階は**手動観測版**です。カメラによる自動色判定や信号機とのBluetooth通信は実装していません。
+- 一般の信号機がBluetoothで色・残り秒数を公開しているとは限りません。Bluetooth取得は、公開仕様と対応機器を確認できた場合に別途実装します。
+- 推定値は観測データに基づく参考値です。交通上の判断や信号制御には使用しないでください。
+- 位置情報はユーザーが「現在地を取得」を押した場合のみ取得します。
+- 履歴は端末・ブラウザごとに保存され、端末間同期はありません。
+- GitHub PagesはHTTPSで公開されるため、位置情報APIを利用できます。
 
 ## ファイル
-
-- `index.html` - 画面構造
-- `styles.css` - レスポンシブUI
-- `app.js` - Web Bluetooth接続・GATT操作・ログ管理
-
-## 安全上の注意
-
-書き込み可能なCharacteristicへの送信は、接続機器の動作に影響する場合があります。機器の仕様を確認し、意味が分かる値だけ送信してください。
+- `index.html`：画面構造
+- `styles.css`：レスポンシブデザイン
+- `app.js`：観測記録・周期分析・CSV出力
